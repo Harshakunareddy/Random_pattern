@@ -10,6 +10,8 @@ import configparser
 config = configparser.ConfigParser()
 config.read('config.ini')
 
+
+
 db_params = {
     'host': config.get('MySQL', 'host'),
     'user': config.get('MySQL', 'user'),
@@ -22,53 +24,69 @@ output_video = config.get('Paths', 'output_video')
 
 line_shape = config.get('Turtle', 'line_shape')
 line_thickness = config.getint('Turtle', 'line_thickness')
+radiusForPetals = config.getint('Turtle','radius')
+speed = config.getint('Turtle','speed')
+petals = config.getint('Turtle','petals')
+
+fill = config.get('Turtle','fillcolor')
+
+line = config.get('Turtle','line')
+
+textcolor = config.get('Turtle','textcolor')
+textsize= config.getint('Turtle','textsize')
+textfont = config.get('Turtle','textfont')
+
 
 fps = config.getint('Video', 'fps')
 video_resolution = tuple(map(int, config.get('Video', 'video_resolution').split('x')))
 
 os.makedirs(image_folder, exist_ok=True)
 
-# ... (rest of your code remains unchanged)
+
 
 # Counter for image filenames
 frame_counter = 0
 
 # Function to draw a petal with a specified line shape and thickness
-def draw_petal(radius, line_shape, line_thickness):
+def draw_petal(r, line_shape, line_thickness):
     turtle.width(line_thickness)
-
+    turtle.colormode(255)
+    turtle.begin_fill()
+    turtle.fillcolor(fill)
     if line_shape == 'square':
         for _ in range(4):
-            turtle.forward(radius * 2)
+            turtle.forward(r * 2)
             turtle.right(90)
     elif line_shape == 'rectangle':
-        turtle.forward(radius * 2)
+        turtle.forward(r * 2)
         turtle.right(90)
-        turtle.forward(radius)
+        turtle.forward(r)
         turtle.right(90)
-        turtle.forward(radius * 2)
+        turtle.forward(r * 2)
         turtle.right(90)
-        turtle.forward(radius)
+        turtle.forward(r)
         turtle.right(90)
     elif line_shape == 'curve':
-        turtle.circle(radius, 180)
+        turtle.circle(r, 180)
     elif line_shape == 'ellipse':
         for _ in range(2):
-            turtle.circle(radius, 90)
-            turtle.circle(radius / 2, 90)
-
+            turtle.circle(r, 90)
+            turtle.circle(r / 2, 90)
+    turtle.end_fill()
+    #turtle.speed(0)
 # Function to draw text content at the top of the image
 def draw_text_content(text_content):
     turtle.penup()
     turtle.goto(0, 250)  # Top of the image
     turtle.pendown()
-    turtle.write(text_content, align="center", font=("Arial", 16, "normal"))
-
+    turtle.color(textcolor)
+    turtle.write(text_content, align="center", font=("Arial", textsize , textfont),move=False)
+    turtle.color(line)
 # Function to draw a lotus flower and capture frames
 def draw_lotus(line_shape, line_thickness, text_content):
-    turtle.speed(2)
-    turtle.color("red")
-    turtle.fillcolor("yellow")
+    #turtle.speed(2)
+    
+    turtle.color(line)
 
     # Draw text content from the beginning
     draw_text_content(text_content)
@@ -79,8 +97,8 @@ def draw_lotus(line_shape, line_thickness, text_content):
     turtle.pendown()
 
     # Draw the petals and capture frames
-    for _ in range(12):
-        draw_petal(100, line_shape, line_thickness)
+    for _ in range(petals):
+        draw_petal(radiusForPetals, line_shape, line_thickness)
 
         # Save the current frame as an image
         global frame_counter
@@ -90,8 +108,8 @@ def draw_lotus(line_shape, line_thickness, text_content):
         img.save(filename)
         frame_counter += 1
 
-        turtle.right(30)
-
+        turtle.right(360/petals)
+        turtle.speed(speed)
     turtle.hideturtle()
 
 # Fetch text content from MySQL table
